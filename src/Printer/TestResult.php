@@ -221,7 +221,7 @@ final class TestResult
         $name = trim($name);
 
         // Finally, lower case everything
-        if (! function_exists('mb_detect_encoding') || false === $encoding = mb_detect_encoding($name, null, true)) {
+        if (! \function_exists('mb_detect_encoding') || false === $encoding = mb_detect_encoding($name, null, true)) {
             $name = strtolower($name);
         } else {
             $name = mb_strtolower($name, $encoding);
@@ -230,7 +230,7 @@ final class TestResult
         // Add the dataset name if it has one
         $providedData = $testCase->getProvidedData();
 
-        if (count($providedData) !== 0) {
+        if (\count($providedData) !== 0) {
             $exporter = new Exporter();
 
             foreach ($providedData as $key => $value) {

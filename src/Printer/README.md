@@ -3,7 +3,7 @@
     <a href="https://github.com/testomat/phpunit-printer/releases"><img src="https://img.shields.io/packagist/v/testomat/phpunit-printer.svg?style=flat-square"></a>
     <a href="https://php.net/"><img src="https://img.shields.io/badge/php-%5E7.3.0-8892BF.svg?style=flat-square"></a>
     <a href="https://codecov.io/gh/testomat/phpunit"><img src="https://img.shields.io/codecov/c/github/testomat/phpunit/master.svg?style=flat-square"></a>
-    <a href="#"><img src="https://img.shields.io/badge/style-level%207-brightgreen.svg?style=flat-square&label=phpstan"></a>
+    <a href="#"><img src="https://img.shields.io/badge/style-level%20max-brightgreen.svg?style=flat-square&label=phpstan"></a>
     <a href="http://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square"></a>
 </p>
 
@@ -65,7 +65,7 @@ You want to change how the errors printed by the PHPUnit printer, use the `show_
     <printer show_error_on="end"/>
 ```
 
-To print the error after a failed test use `show_error_on="test"`, default is to print the errors after the test runner finished.
+To print the error after a failed test use `show_error_on="test"`, the default is to print the errors after the test runner finished.
 
 > Note: the printer supports all PHPUnit stopOn... settings.
 

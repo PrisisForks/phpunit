@@ -17,15 +17,12 @@ use SebastianBergmann\CodeCoverage\CodeCoverage;
 use SebastianBergmann\CodeCoverage\Node\Directory;
 use SebastianBergmann\CodeCoverage\Node\File;
 use SebastianBergmann\CodeCoverage\Util;
-use Testomat\PHPUnit\Common\Terminal\Terminal;
+use Testomat\PHPUnit\Common\Terminal\TerminalSection;
 use Testomat\TerminalColour\Formatter;
 
 final class Text
 {
-    /** @var int */
-    private $numberOfColumns;
-
-    /** @var \Testomat\PHPUnit\Common\Terminal\Terminal */
+    /** @var \Testomat\PHPUnit\Common\Terminal\TerminalSection */
     private $output;
 
     /** @var \Testomat\TerminalColour\Contract\WrappableFormatter */
@@ -43,18 +40,9 @@ final class Text
     /** @var bool */
     private $showOnlySummary;
 
-    public function __construct(Terminal $terminal, string $colors, int $numberOfColumns)
+    public function __construct(TerminalSection $terminal, bool $enableColor)
     {
         $this->output = $terminal;
-        $this->numberOfColumns = $numberOfColumns;
-
-        if ($colors === 'always') {
-            $enableColor = true;
-        } elseif ($colors === 'auto') {
-            $enableColor = $this->output->hasColorSupport();
-        } else {
-            $enableColor = false;
-        }
 
         $styles = [];
 
@@ -91,28 +79,27 @@ final class Text
             /**
              * @psalm-var array{namespace: string, className: string, methodsCovered: float|int, methodCount: int, statementsCovered: int, statementCount: int} $classInfo
              *
-             * @var string $fullQualifiedPath
-             * @var array<string, string|int> $classInfo
+             * @var array<string, int|string> $classInfo
              */
-            foreach ($this->prepareClassCoverage($report) as $fullQualifiedPath => $classInfo) {
+            foreach ($this->prepareClassCoverage($report) as $classInfo) {
                 if ($this->showUncoveredFiles || $classInfo['statementsCovered'] !== 0) {
-                    $classPercent = Util::percent(
+                    $methodsPercent = Util::percent(
                         $classInfo['methodsCovered'],
                         $classInfo['methodCount'],
                         true,
                         true
                     );
 
-                    if ($classPercent === '') {
-                        $classPercent = '100.00%';
+                    if ($methodsPercent === '') {
+                        $methodsPercent = '100.00%';
                     }
 
-                    $color = $this->getCoverageColor($classPercent);
+                    $color = $this->getCoverageColor($methodsPercent);
 
                     $this->output->writeln($this->colour->format(\Safe\sprintf(
                         ' <fg=white>[</><fg=%s>%s</><fg=white> %%]</>  %s',
                         $color,
-                        str_replace('%', '', (string) $classPercent),
+                        str_replace('%', '', (string) $methodsPercent),
                         $this->getClassName($classInfo)
                     )));
                 }
@@ -177,7 +164,7 @@ final class Text
     /**
      * @psalm-return array{namespace: string, className: string, methodsCovered: float|int, methodCount: int, statementsCovered: int, statementCount: int}
      *
-     * @return array<string, string|int>
+     * @return array<string, int|string>
      */
     private function prepareClassCoverage(Directory $report): array
     {
@@ -190,9 +177,7 @@ final class Text
 
             $classes = $item->getClassesAndTraits();
 
-            /**
-             * @var string $className
-             */
+            /** @var string $className */
             foreach ($classes as $className => $class) {
                 $classStatements = 0;
                 $coveredClassStatements = 0;
@@ -239,6 +224,7 @@ final class Text
 
     /**
      * @psalm-param array{namespace: string, className: string, methodsCovered: float|int, methodCount: int, statementsCovered: int, statementCount: int} $classInfo
+     *
      * @param array<string, int|string> $classInfo
      */
     private function getClassName(array $classInfo): string

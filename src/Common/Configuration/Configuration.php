@@ -45,6 +45,9 @@ final class Configuration
     /** @var string */
     private $showErrorOn;
 
+    /** @var null|float */
+    private $minCoverage;
+
     /** @var bool */
     private $speedTrapActive;
 
@@ -76,6 +79,7 @@ final class Configuration
         string $type,
         bool $isUtf8,
         string $showErrorOn,
+        ?float $minCoverage,
         Collection $ignoredFiles,
         bool $speedTrapActive,
         int $speedTrapSlowThreshold,
@@ -89,6 +93,7 @@ final class Configuration
         $this->type = $type;
         $this->isUtf8 = $isUtf8;
         $this->showErrorOn = $showErrorOn;
+        $this->minCoverage = $minCoverage;
         $this->ignoredFiles = $ignoredFiles;
 
         $this->speedTrapActive = $speedTrapActive;
@@ -128,6 +133,11 @@ final class Configuration
     public function showErrorOn(): string
     {
         return $this->showErrorOn;
+    }
+
+    public function getMinCoverage(): ?float
+    {
+        return $this->minCoverage;
     }
 
     public function isSpeedTrapActive(): bool

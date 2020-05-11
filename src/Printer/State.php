@@ -15,7 +15,6 @@ namespace Testomat\PHPUnit\Printer;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Runner\BaseTestRunner;
-use Testomat\PHPUnit\Common\Contract\Exception\RuntimeException;
 use Testomat\PHPUnit\Common\Contract\PHPUnit\PrettyTestCaseName as PrettyTestCaseNameContract;
 
 /**

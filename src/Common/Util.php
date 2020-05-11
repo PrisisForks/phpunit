@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Testomat\PHPUnit\Common;
 
-use Closure;
 use PHPUnit\Runner\Version;
 use PHPUnit\TextUI\TestRunner;
 use Testomat\PHPUnit\Common\Configuration\Configuration;

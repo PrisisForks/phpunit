@@ -25,7 +25,7 @@ final class Loader
         $document = Xml::loadFile($filename, false, true, true);
         $xpath = new DOMXPath($document);
 
-        [$type, $isUtf8, $showErrorOn, $excludeDirectories] = $this->getPrinterConfig($xpath);
+        [$type, $isUtf8, $showErrorOn, $excludeDirectories, $minCoverage] = $this->getPrinterConfig($xpath);
         [$speedTrapActive, $speedTrapSlowThreshold, $speedTrapReportLength] = $this->getSpeedTrapConfig($xpath);
         [$overAssertiveActive, $overAssertiveThreshold, $overAssertiveReportLength] = $this->getOverAssertiveConfig($xpath);
 
@@ -35,6 +35,7 @@ final class Loader
             $type,
             $isUtf8,
             $showErrorOn,
+            $minCoverage,
             $excludeDirectories,
             $speedTrapActive,
             $speedTrapSlowThreshold,
@@ -73,7 +74,7 @@ final class Loader
     }
 
     /**
-     * @psalm-return array{0: string, 1: string, 2: \Testomat\PHPUnit\Common\Configuration\Collection}
+     * @psalm-return array{0: string, 1: string, 2: string, 3: \Testomat\PHPUnit\Common\Configuration\Collection, 4: null|float}
      *
      * @return array<int, string|\Testomat\PHPUnit\Common\Configuration\Collection>
      */
@@ -86,6 +87,7 @@ final class Loader
             'vendor/phpunit/phpunit/src' => true,
             'vendor/mockery/mockery' => true,
         ];
+        $minCoverage = null;
 
         foreach ($xpath->query('printer') as $element) {
             if ($element instanceof DOMElement) {
@@ -101,6 +103,10 @@ final class Loader
                     $showErrorOn = $element->getAttribute('show_error_on');
                 }
 
+                if ($element->hasAttribute('min_coverage')) {
+                    $minCoverage = (float) $element->getAttribute('min_coverage');
+                }
+
                 if ($element->hasChildNodes()) {
                     foreach ($element->firstChild->childNodes as $node) {
                         if ($node instanceof DOMElement) {
@@ -111,7 +117,7 @@ final class Loader
             }
         }
 
-        return [$type, $isUtf8, $showErrorOn, new Collection(array_keys($directories))];
+        return [$type, $isUtf8, $showErrorOn, new Collection(array_keys($directories)), $minCoverage];
     }
 
     /**

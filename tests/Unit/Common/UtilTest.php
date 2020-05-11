@@ -19,11 +19,15 @@ use Testomat\PHPUnit\Common\Util;
 
 /**
  * @covers \Testomat\PHPUnit\Common\Util
+ *
+ * @internal
+ *
+ * @small
  */
-class UtilTest extends TestCase
+final class UtilTest extends TestCase
 {
     /**
-     * @dataProvider provideSecondsToTimeStringCases
+     * @dataProvider provideGetPreparedTimeStringCases
      */
     public function testGetPreparedTimeString(float $time, string $expected, bool $whitoutMs = false): void
     {
@@ -31,14 +35,18 @@ class UtilTest extends TestCase
     }
 
     /**
-     * @return iterable<array<int, int|float|string|bool>>
+     * @return iterable<array<int, bool|float|int|string>>
      */
-    public static function provideSecondsToTimeStringCases(): iterable
+    public static function provideGetPreparedTimeStringCases(): iterable
     {
         yield [0.10, '  [100 ms]  '];
+
         yield [10, '  [10 sec] '];
+
         yield [60, '  [1 min] '];
+
         yield [100, '  [1 min] ', true];
+
         yield [100, '  [1 min, 40 sec] '];
     }
 
@@ -74,7 +82,7 @@ class UtilTest extends TestCase
 
         $configuration = Util::getTestomatConfiguration();
 
-        $testomatFile = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'testomat.xml';
+        $testomatFile = \dirname(__DIR__, 3) . \DIRECTORY_SEPARATOR . 'testomat.xml';
 
         self::assertSame($testomatFile, $configuration->getFilename());
 

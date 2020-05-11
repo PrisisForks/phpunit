@@ -21,6 +21,8 @@ use PHPUnit\Runner\BaseTestRunner;
 use PHPUnit\Runner\TestSuiteSorter;
 use PHPUnit\Runner\Version;
 use ReflectionObject;
+use SebastianBergmann\CodeCoverage\CodeCoverage;
+use SebastianBergmann\CodeCoverage\Util as CodeCoverageUtil;
 use SebastianBergmann\Environment\Runtime;
 use SebastianBergmann\Timer\Timer as SBTimer;
 use Testomat\PHPUnit\Common\Configuration\Configuration;
@@ -33,6 +35,7 @@ use Testomat\PHPUnit\Common\Util;
 use Testomat\PHPUnit\Printer\Contract\Style as StyleContract;
 use Testomat\PHPUnit\Printer\Exception\Renderer as ExceptionRenderer;
 use Testomat\PHPUnit\Printer\State;
+use Testomat\PHPUnit\Printer\Style\CodeCoverage\Text;
 use Testomat\PHPUnit\Printer\TestResult;
 use Testomat\TerminalColour\Formatter;
 use Testomat\TerminalColour\Style;
@@ -325,6 +328,54 @@ abstract class AbstractStyle implements StyleContract
         $this->writeDifferentResultsOnConfigurationValidationErrors();
     }
 
+    public function writeTextCodeCoverage(CodeCoverage $codeCoverage, bool $hasErrors): void
+    {
+        $coveragePrinter = new Text($this->errorSection, $this->colour->isDecorated());
+
+        $arguments = Util::getPHPUnitTestRunnerArguments();
+        $codeCoverageConfiguration = $this->phpunitConfiguration->getCodeCoverage();
+
+        if ($hasErrors) {
+            $codeCoverageConfiguration->setShowOnlySummary(true);
+        } elseif (! $codeCoverageConfiguration->hasShowOnlySummary()) {
+            $codeCoverageConfiguration->setShowOnlySummary($arguments['coverageTextShowOnlySummary'] ?? false);
+        }
+
+        if (! $codeCoverageConfiguration->hasShowUncoveredFiles()) {
+            $codeCoverageConfiguration->setShowUncoveredFiles($arguments['coverageTextShowUncoveredFiles'] ?? true);
+        }
+
+        $coveragePrinter->setHighLowerBound($codeCoverageConfiguration->getHighLowerBound());
+        $coveragePrinter->setLowUpperBound($codeCoverageConfiguration->getLowUpperBound());
+        $coveragePrinter->setShowOnlySummary($codeCoverageConfiguration->isShowOnlySummary());
+        $coveragePrinter->setShowUncoveredFiles($codeCoverageConfiguration->isShowUncoveredFiles());
+
+        $coveragePrinter->process($codeCoverage);
+    }
+
+    public function writeCodeCoverageCheckMessage(CodeCoverage $codeCoverage): void
+    {
+        if (null !== $minCoverage = $this->configuration->getMinCoverage()) {
+            $report = $codeCoverage->getReport();
+
+            $stringClassesPercent = str_replace('%', '', (string) CodeCoverageUtil::percent(
+                $report->getNumTestedClassesAndTraits(),
+                $report->getNumClassesAndTraits(),
+                true
+            ));
+
+            if ($minCoverage !== null && $minCoverage > (float) $stringClassesPercent) {
+                $this->errorSection->writeln($this->colour->format(\Safe\sprintf(
+                    \PHP_EOL . '<fg=red;effects=bold>FAIL</> Code coverage is below expected <effects=bold>%s %%</>. Reached code coverage is <fg=red;effects=bold>%s %%</>.',
+                    $minCoverage,
+                    $stringClassesPercent
+                )));
+
+                exit(1);
+            }
+        }
+    }
+
     public function writeEmptyTestMessage(State $state): void
     {
         if (\count($state->testCaseTests) === 0) {
@@ -459,11 +510,11 @@ abstract class AbstractStyle implements StyleContract
                 $this->errorSection->writeln($this->colour->format(
                     sprintf(
                         '<fg=default> %s assertion%s in %s::%s <effects=bold>(expected < %s)</></>',
-                        $test->assertions,
-                        $test->assertions >= 2 ? 's' : '',
+                        $test->numAssertions,
+                        $test->numAssertions >= 2 ? 's' : '',
                         $test->class,
                         $test->method,
-                        $test->threshold
+                        $test->overAssertiveThreshold
                     )
                 ));
             }

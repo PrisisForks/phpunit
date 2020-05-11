@@ -109,7 +109,7 @@ final class TerminalSection extends StreamOutput
 
         $this->addContent($message);
 
-        parent::doWrite($message, true);
+        parent::doWrite($message, $newline);
         parent::doWrite($erasedContent, false);
     }
 
@@ -117,7 +117,7 @@ final class TerminalSection extends StreamOutput
      * At initial stage, cursor is at the end of stream output. This method makes cursor crawl upwards until it hits
      * current section. Then it erases content it crawled through. Optionally, it erases part of current section too.
      *
-     * @param int|float $numberOfLinesToClearFromCurrentSection
+     * @param float|int $numberOfLinesToClearFromCurrentSection
      */
     private function popStreamContentUntilCurrentSection($numberOfLinesToClearFromCurrentSection = 0): string
     {

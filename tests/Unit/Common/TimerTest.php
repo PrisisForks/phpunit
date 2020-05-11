@@ -18,8 +18,12 @@ use Testomat\PHPUnit\Common\Timer;
 
 /**
  * @covers \Testomat\PHPUnit\Common\Timer
+ *
+ * @internal
+ *
+ * @small
  */
-class TimerTest extends TestCase
+final class TimerTest extends TestCase
 {
     /**
      * @dataProvider provideSecondsToTimeStringCases
@@ -30,13 +34,16 @@ class TimerTest extends TestCase
     }
 
     /**
-     * @return iterable<array<int, int|float|string>>
+     * @return iterable<array<int, float|int|string>>
      */
     public static function provideSecondsToTimeStringCases(): iterable
     {
         yield [0.10, '100 ms'];
+
         yield [10, '10 sec'];
+
         yield [60, '1 min'];
+
         yield [100, '1 min, 40 sec'];
     }
 }

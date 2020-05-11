@@ -24,5 +24,4 @@ use PHPUnit\Framework\TestCase;
  */
 final class TextTest extends TestCase
 {
-
 }

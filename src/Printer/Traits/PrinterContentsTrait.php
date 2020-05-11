@@ -22,6 +22,7 @@ use PHPUnit\Framework\Warning;
 use PHPUnit\Runner\BaseTestRunner;
 use PHPUnit\Runner\PhptTestCase;
 use PHPUnit\Runner\Version;
+use SebastianBergmann\CodeCoverage\CodeCoverage;
 use SebastianBergmann\Timer\Timer;
 use Testomat\PHPUnit\Common\Configuration\Configuration;
 use Testomat\PHPUnit\Common\Configuration\PHPUnitConfiguration;
@@ -30,7 +31,6 @@ use Testomat\PHPUnit\Common\Contract\Exception\ShouldNotHappenException;
 use Testomat\PHPUnit\Common\Terminal\Terminal;
 use Testomat\PHPUnit\Common\Util;
 use Testomat\PHPUnit\Printer\State;
-use Testomat\PHPUnit\Printer\Style\CodeCoverage\Text;
 use Testomat\PHPUnit\Printer\Style\Compact;
 use Testomat\PHPUnit\Printer\Style\Expanded;
 use Testomat\PHPUnit\Printer\TestResult as TestomatTestResult;
@@ -329,27 +329,12 @@ trait PrinterContentsTrait
     public function printResult(TestResult $result): void
     {
         if ($result->getCollectCodeCoverageInformation()) {
-            $coveragePrinter = new Text($this->output, $this->phpunitColors, $this->numberOfColumns);
+            /** @var CodeCoverage $codeCoverage */
+            $codeCoverage = $result->getCodeCoverage();
 
-            $arguments = Util::getPHPUnitTestRunnerArguments();
-            $codeCoverageConfiguration = $this->phpunitConfiguration->getCodeCoverage();
+            $this->style->writeTextCodeCoverage($codeCoverage, $this->hasErrors);
 
-            if ($this->hasErrors) {
-                $codeCoverageConfiguration->setShowOnlySummary(true);
-            } elseif (! $codeCoverageConfiguration->hasShowOnlySummary()) {
-                $codeCoverageConfiguration->setShowOnlySummary($arguments['coverageTextShowOnlySummary'] ?? false);
-            }
-
-            if (! $codeCoverageConfiguration->hasShowUncoveredFiles()) {
-                $codeCoverageConfiguration->setShowUncoveredFiles($arguments['coverageTextShowUncoveredFiles'] ?? true);
-            }
-
-            $coveragePrinter->setHighLowerBound($codeCoverageConfiguration->getHighLowerBound());
-            $coveragePrinter->setLowUpperBound($codeCoverageConfiguration->getLowUpperBound());
-            $coveragePrinter->setShowOnlySummary($codeCoverageConfiguration->isShowOnlySummary());
-            $coveragePrinter->setShowUncoveredFiles($codeCoverageConfiguration->isShowUncoveredFiles());
-
-            $coveragePrinter->process($result->getCodeCoverage());
+            $this->style->writeCodeCoverageCheckMessage($codeCoverage);
 
             return;
         }

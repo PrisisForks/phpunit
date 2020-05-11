@@ -30,6 +30,7 @@ final class CollectionTest extends TestCase
 
     /**
      * @phpstan-var \Testomat\PHPUnit\Common\Configuration\Collection<string>
+     *
      * @var \Testomat\PHPUnit\Common\Configuration\Collection
      */
     private $collection;
